@@ -21,7 +21,7 @@ library("tidyverse")
 # - sep = "\t" because GEO matrices are tab-separated
 
 gse5620 <- read.delim(
-  "../_raw/data/GSE5620_series_matrix.txt.gz",
+  "../_raw/data/GSE5620_series_matrix.txt.gz", # remember to use relative paths, not your local path
   header = TRUE,
   sep = "\t",
   comment.char = "!",
@@ -29,7 +29,7 @@ gse5620 <- read.delim(
 )
 
 gse5621 <- read.delim(
-  "../_raw/data/GSE5621_series_matrix.txt.gz",
+  "../_raw/data/GSE5621_series_matrix.txt.gz", # remember to use relative paths, not your local path
   header = TRUE,
   sep = "\t",
   comment.char = "!",
