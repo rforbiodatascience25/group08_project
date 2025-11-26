@@ -126,7 +126,7 @@ clean_data <- final_data_numeric %>%
 
 write.csv(
   clean_data,
-  "clean_sample_expression.csv",
+  "../_raw/data/clean_sample_expression.csv", # remember to save the data in appropriate folder (data for now, since results will be html files)
   row.names = FALSE
 )
 ```
