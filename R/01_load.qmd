@@ -5,14 +5,162 @@ format: html
 editor: visual
 ---
 
-## Load packages
+## 1. Load packages
 
 ```{r}
 library("tidyverse")
 ```
 
-## Load data
+## 2. Load the two GEO expression datasets
 
 ```{r}
+# Read the first GEO series matrix (GSE5620)
+# - comment.char = "!" removes all metadata lines (starting with "!")
+# - row.names = 1 uses the first column (ID_REF) as row names (genes)
+# - header = TRUE keeps the sample names as column names
+# - sep = "\t" because GEO matrices are tab-separated
 
+gse5620 <- read.delim(
+  "../_raw/data/GSE5620_series_matrix.txt.gz",
+  header = TRUE,
+  sep = "\t",
+  comment.char = "!",
+  row.names = 1
+)
+
+gse5621 <- read.delim(
+  "../_raw/data/GSE5621_series_matrix.txt.gz",
+  header = TRUE,
+  sep = "\t",
+  comment.char = "!",
+  row.names = 1
+)
+```
+
+## 3. Create condition labels for each dataset and combine athem in the same order as columns
+
+```{r}
+# GSE5620 = "normal" samples
+# GSE5621 = "stress" samples
+# Create a condition label for each sample  (normal vs stress conditions)
+# ncol(gse5620) = number of samples in this dataset (37)
+# ncol(gse5621) = number of samples in this dataset (37)
+# rep("normal", ...) repeats the word "normal" for each sample (column)
+# rep("stress", ...) repeats the word "normal" for each sample (column)
+
+cond_5620 <- rep("normal", ncol(gse5620)) 
+cond_5621 <- rep("stress", ncol(gse5621))
+
+conditions <- c(cond_5620, cond_5621)
+```
+
+## 4. Combine both expression matrices side-by-side
+
+```{r}
+# Both datasets have the same genes in the same order.
+# Combining columns gives us a single large matrix:
+# genes = rows, samples = columns
+
+combined_expr <- cbind(gse5620, gse5621)
+```
+
+## 5. Convert the expression matrix into a tidy format
+
+```{r}
+# Here im changing the layout of the table, was samples in columns and expression levels of each gene as row. Lets reverse that so the condition can be add as a column. 
+# Goal is to create ONE final table where:
+# each row = one sample
+# each column = one gene
+# plus a column for the sample name
+# plus a column for the condition (normal/stress)
+
+# Steps:
+# Transpose with t() so samples become rows.
+# Convert to data frame.
+# Add sample ID as a column.
+# Add condition labels.
+# Move label columns to the front for readability.
+
+final_data <- combined_expr %>%
+  t() %>% # transpose → samples (rows) × genes (columns) 
+  as.data.frame() %>% # convert matrix → data frame 
+  rownames_to_column("sample") %>% # add sample name column 
+  mutate(condition = conditions) %>% # add normal/stress label 
+  relocate(sample, condition) # move sample + condition to the front
+```
+
+## 6. Convert all gene columns to numeric
+
+```{r}
+# This ensures all expression values are real numbers before log2-normalization.
+# If any column contains non-numeric entries (e.g. "NA", " ", "."), R will warn: "NAs introduced by coercion"
+# This is a quality-control check
+
+final_data_numeric <- final_data %>%
+  mutate(across(-c(sample, condition), ~ as.numeric(.x)))
+```
+
+## 7. Log2-normalize gene expression
+
+```{r}
+# Raw microarray intensities have a huge dynamic range (0–20,000+).
+# Log2 transformation compresses this range 
+# This step prepares the data for PCA, clustering, and all downstream analyses.
+
+clean_data <- final_data_numeric %>%
+  mutate(across(-c(sample, condition), ~ log2(.x + 1)))
+```
+
+## 8. Save the final tidy dataset as ONE CSV file
+
+```{r}
+# clean_sample_expression.csv contains:
+# one row per sample
+# gene expression values (many columns)
+# condition column
+# this is the file we ll use for all downstream analysis
+
+# row.names = FALSE prevents R from adding an extra first column
+# we already have a 'sample' column, so we don't want an additional unnecessary row-name column).
+
+
+write.csv(
+  clean_data,
+  "clean_sample_expression.csv",
+  row.names = FALSE
+)
+```
+
+## Test1: expression of one gene by condition
+
+```{r}
+gene <- "244901_at"
+
+ggplot(clean_data, aes(x = condition, y = .data[[gene]], fill = condition)) +
+  geom_boxplot() +
+  labs(
+    title = paste("Expression of", gene, "by condition"),
+    x = "Condition",
+    y = "log2(Expression +1)"
+  )
+```
+
+## Test2: density of all genes by condition
+
+```{r}
+clean_data_long <- clean_data %>%
+  pivot_longer(
+    cols = -c(sample, condition),
+    names_to = "gene",
+    values_to = "expression"
+  )
+
+ggplot(clean_data_long, aes(x = expression, color = condition)) +
+  geom_density() +
+  theme_minimal() +
+  labs(
+    title = "Density of ALL log2-Normalized Gene Expression Values",
+    x = "log2(Expression + 1)",
+    y = "Density"
+  )
 ```
