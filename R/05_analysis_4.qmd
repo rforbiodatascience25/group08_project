@@ -194,9 +194,9 @@ Still too big, there are 230 rows!
 # choose top 20 by absolute effect size
 topN <- 20
 
-forest_plot_top20 <- data_estimates %>%
-  filter(is_significant == "yes") %>%
-  slice_max(order_by = abs(estimate), n = topN) %>%
+forest_plot_top20 <- data_estimates |>
+  filter(is_significant == "yes") |>
+  slice_max(order_by = abs(estimate), n = topN) |>
   ggplot(aes(
     x = estimate,
     y = fct_reorder(gene, estimate),
