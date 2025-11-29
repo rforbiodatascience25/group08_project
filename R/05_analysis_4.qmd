@@ -20,19 +20,55 @@ library("broom")
 data <- read_csv("_processed/expression_with_metadata.csv")
 ```
 
+```{r}
+data$timepoint <- factor(
+  data$timepoint,
+  levels = c("0h", "0.25h", "0.5h", "1.0h",
+             "3.0h", "4.0h", "6.0h", 
+             "12.0h", "24.0h")
+)
+```
+
 ## Small test - applying linear model to one gene
 
 ```{r}
-model <- data |> 
-  lm(formula = `244901_at` ~ condition,
+gene = 'ORF25'
+
+small_test_ORF25 <- data |> 
+  dplyr::select(condition, tissue, timepoint, ORF25, replicate)
+small_test_ORF25
+
+small_test_ORF25_shoots <- small_test_ORF25 |>
+  filter(tissue == 'Shoots')
+small_test_ORF25_shoots
+
+small_test_ORF25_shoots_control <- small_test_ORF25_shoots |>
+  filter(condition == "control")
+small_test_ORF25_shoots_control
+
+small_test_ORF25_shoots_cold <- small_test_ORF25_shoots |>
+  filter(condition == "cold")
+small_test_ORF25_shoots_cold
+```
+
+```{r}
+ggplot(small_test_ORF25_shoots, aes(y = ORF25, x = timepoint, color = condition)) +
+  geom_point()
+```
+
+```{r}
+# lm model
+model_lm <- small_test_ORF25_shoots_control |>
+  group_by(condition, tissue, timepoint) |>
+  lm(formula = ORF25 ~ timepoint,
      data = _)
 print("lm() output:")
-model |>
+model_lm |>
   pluck("coefficients")
 
 
 print("summary() output:")
-model |>
+model_lm |>
   summary()
 
 ```
@@ -40,26 +76,25 @@ model |>
 Since P-value is \<2e-16, there is a statistically significant difference in 244901_at expression between normal and stress conditions.
 
 ```{r}
-ggplot(data, aes(x = condition, y = `244901_at`, fill = condition)) +
-  geom_boxplot() +
-  labs(
-    title = paste("Expression of 244901_at by condition"),
-    x = "Condition",
-    y = "log2(Expression +1)"
-  ) 
+# aov model
+model_aov <- small_test_ORF25_shoots_control |>
+  group_by(condition, tissue, timepoint) |>
+  aov(formula = ORF25 ~ timepoint,
+     data = _)
+print("aov() output:")
+model_aov
 
-data |>
-  group_by(condition) |>
-  summarise(mu = mean(`244901_at`))
+
+print("summary() output:")
+model_aov |>
+  summary()
 ```
-
-Boxplot shows that mean for stress is higher, thus 244901_at is upregulated when the plant is stressed.
 
 ## Create long dataframe
 
 ```{r}
 data_long <- data |>
-  pivot_longer(cols = ends_with("at"),
+  pivot_longer(cols = data[7:10561],
                names_to = "gene",
                values_to = "log2_expr_level")
 data_long
