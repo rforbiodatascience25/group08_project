@@ -81,7 +81,7 @@ plot2
 Shoots and roots have different expression patterns across time. The patterns are similar between cold and control conditions, however expression seems to be lower under cold conditions.
 
 ```{r}
-# find out what gene xx is
+# find out what gene (AT)SRC2 is
 expr_annotated_gene_info <- expr_annotated |>
   select(genename, symbol)
 
