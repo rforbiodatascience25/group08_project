@@ -15,17 +15,17 @@ library("tidyverse")
 ## Load data
 
 ```{r}
-heat_data <- read_tsv("../_raw/data/expression_with_metadata.tsv")
-pnq_values <- read_csv("../_raw/data/05_analysis_4_results.csv")
+heat_data <- read_tsv("../_raw/data/03_dat_aug.tsv")
+significant_genes <- read_tsv("../_raw/data/05_analysis_1_results.tsv")
 
 heat_data
 ```
 
-# Filter and clean up relevant data
-
 ```{r}
-pnq_values
+all(top50_genes$gene %in% significant_genes$gene)
 ```
+
+# Filter and clean up relevant data
 
 ```{r}
 filtered_heat_data <- heat_data |>
@@ -71,6 +71,12 @@ top50_genes <- heat_log2fc |>
 #Filter out irrelevant genes
 filtered_heat_log2fc <- heat_log2fc |>
   filter(gene %in% top50_genes$gene, `timepoint [h]` != 0)
+```
+
+## Check if top 50 genes are in the gene file
+
+```{r}
+all(top50_genes$gene %in% significant_genes$gene)
 ```
 
 ## Plotting heat map (Controls + Shoots)
@@ -199,3 +205,7 @@ ggplot(heatmap_data4, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
        y = "Genes",
        fill = "Log2 Fold Change")
 ```
+
+names = aaa
+
+names %in% column
