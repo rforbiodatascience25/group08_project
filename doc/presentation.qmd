@@ -19,10 +19,10 @@ format:
 - 02_clean - *Filter probes, remove controls, annotate genes*  
 - 03_augment - *Integrate metadata, add averaged expression values*  
 - 04_describe - *Summaries & key dataset visualization*  
-- 05_analysis_1 - *Heatmap*  
-- 05_analysis_2 - *Volcano plot*  
-- 05_analysis_3 - *PCA plot*
-- 05_analysis_4 - *Linear model using broom*
+- 05_analysis_1 - *Polynomial Model*  
+- 05_analysis_2 - *Heatmap*  
+- 05_analysis_3 - *Volcano plot*
+- 05_analysis_4 - *PCA plot*
 :::
 </div>
 ---
@@ -234,6 +234,8 @@ SRC2:
 :::: {.columns}
 
 ::: {.column width="50%"}
+lm(formula = expression ~ condition * poly(time, 3) * tissue
+
 ![](../results/05_key_plot_1.png)
 :::
 
@@ -250,19 +252,32 @@ SRC2:
 
 ## Step 05.2 - Heatmap   
 
-#![](images/XXX.png) 
+![](../results/05_key_plot_3.png){width="80%"}
 
 ---
 
-## Step 05.3 - PCA Plot  
-(placeholder slide)
+## Step 05.3 - Volcano Plot 
+:::: {.columns}
 
+::: {.column width="50%"}
+
+
+![](../results/05_key_plot_6.png)
+:::
+
+::: {.column width="50%"}
+
+![](../results/05_key_plot_7.png)
+:::
+
+::::
 ---
 
-## Step 05.4 - Volcano Plot
+## Step 05.4 - PCA Plot  
 
+![](../results/05_key_plot_4.png){width="90%"}
 
+::: {.center}
+## Thank you!
+:::
 
----
-
-## Thank you! {footer=false}

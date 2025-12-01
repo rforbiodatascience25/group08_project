@@ -411,12 +411,12 @@
 </li>
 <li>04_describe - <em>Summaries &amp; key dataset visualization</em><br>
 </li>
-<li>05_analysis_1 - <em>Heatmap</em><br>
+<li>05_analysis_1 - <em>Polynomial Model</em><br>
 </li>
-<li>05_analysis_2 - <em>Volcano plot</em><br>
+<li>05_analysis_2 - <em>Heatmap</em><br>
 </li>
-<li>05_analysis_3 - <em>PCA plot</em></li>
-<li>05_analysis_4 - <em>Linear model using broom</em></li>
+<li>05_analysis_3 - <em>Volcano plot</em></li>
+<li>05_analysis_4 - <em>PCA plot</em></li>
 </ul>
 </div>
 </div>
@@ -566,6 +566,7 @@
 <h2>Step 05.1 - Polynomial Model</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
+<p>lm(formula = expression ~ condition * poly(time, 3) * tissue</p>
 <p><img data-src="../results/05_key_plot_1.png"></p>
 </div><div class="column" style="width:50%;">
 <p><img data-src="../results/05_key_plot_2.png"></p>
@@ -573,23 +574,30 @@
 </section>
 <section id="step-05.2---heatmap" class="slide level2">
 <h2>Step 05.2 - Heatmap</h2>
-<p>#<img data-src="images/XXX.png"></p>
+
+<img data-src="../results/05_key_plot_3.png" style="width:80.0%" class="r-stretch"></section>
+<section id="step-05.3---volcano-plot" class="slide level2">
+<h2>Step 05.3 - Volcano Plot</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>lm(formula = expression ~ condition * poly(time, 3) * tissue</p>
+<p><img data-src="../results/05_key_plot_6.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="../results/05_key_plot_7.png"></p>
+</div></div>
 </section>
-<section id="step-05.3---pca-plot" class="slide level2">
-<h2>Step 05.3 - PCA Plot</h2>
-<p>(placeholder slide)</p>
-</section>
-<section id="step-05.4---volcano-plot" class="slide level2">
-<h2>Step 05.4 - Volcano Plot</h2>
-</section>
-<section id="thank-you" class="slide level2" data-footer="false">
+<section id="step-05.4---pca-plot" class="slide level2">
+<h2>Step 05.4 - PCA Plot</h2>
+
+<img data-src="../results/05_key_plot_4.png" style="width:90.0%" class="r-stretch"></section>
+<section id="thank-you" class="slide level2 center">
 <h2>Thank you!</h2>
+</section>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
 <p>22160 - R for Bio Data Science</p>
 </div>
 </div>
-</section>
     </div>
   </div>
 
