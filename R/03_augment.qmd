@@ -76,5 +76,5 @@ expr_with_meta <- expr_with_meta |>
 ## 7. Save final dataset
 
 ```{r}
-readr::write_tsv(expr_with_meta, "../_raw/data/expression_with_metadata.tsv")
+readr::write_tsv(expr_with_meta, "../_raw/data/03_dat_aug.tsv")
 ```

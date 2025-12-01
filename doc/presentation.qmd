@@ -52,9 +52,6 @@ Dataset summary
 
 
 ![](https://www.oxinst.com/learning/uploads/inline-images/a-thaliana-fig01-20190307164222.jpg){width="70%"}
-*Our aim:*
-
-To study the relationship between the composition of the gut microbiota and factors such as diet and colonisation history.
 
 
 :::
@@ -63,133 +60,89 @@ To study the relationship between the composition of the gut microbiota and fact
 
 ---
 
-## Step 01 - Load
+## Step 01 - Load  
 
-### 1. Read raw GEO Series Matrix files
+<div style="font-size:0.49em;">
 
-::: columns
-::: column
-
-``` r
-raw_5620 <- readLines("../_raw/data/GSE5620_series_matrix.txt.gz")
-raw_5621 <- readLines("../_raw/data/GSE5621_series_matrix.txt.gz")
-```
-
-:::
-
-::: column
-Read files line-by-line because they contain metadata and expression mixed together.
-:::
-:::
-
----
-
-### 2. Extract metadata (titles + GSM IDs)
-
-::: columns
-::: column
-
-``` r
+### Extract metadata
+```{.python code-line-numbers="5,6"}
 extract_metadata <- function(raw_lines) {
   title_line <- raw_lines[str_detect(raw_lines, "^!Sample_title")]
   gsm_line   <- raw_lines[str_detect(raw_lines, "^!Sample_geo_accession")]
 
   title_clean <- str_remove(title_line, "^!Sample_title\t")
   gsm_clean   <- str_remove(gsm_line, "^!Sample_geo_accession\t")
+}
+```
 
-  tibble(
-    title = str_remove_all(title_clean, '"'),
-    GSM   = str_remove_all(gsm_clean, '"')
+### Parse metadata
+```r
+parse_title <- function(df) {
+  df |> mutate(
+    tissue    = str_extract(title, "(Shoots|Roots)")
   )
 }
 ```
 
-:::
-
-::: column
-Extract sample titles and GSM IDs from metadata lines.
-:::
-:::
-
----
-
-### 3. Parse metadata into structured variables
-
-::: columns
-::: column
-
-``` r
-parse_title <- function(df) {
-  df |>
-    mutate(
-      tissue    = str_extract(title, "(Shoots|Roots)"),
-      timepoint = str_extract(title, "[0-9.]+h"),
-      replicate = str_extract(title, "Rep[0-9]")
-    )
-}
-```
-
-:::
-
-::: column
-Extract tissue, timepoint, and replicate from sample titles.
-:::
-:::
-
----
-
-### 4. Load numeric expression matrix
-
-::: columns
-::: column
-
-``` r
+### Load numeric expression matrix
+```r
 gse5620 <- read.delim(file_5620, comment.char = "!", row.names = 1)
 gse5621 <- read.delim(file_5621, comment.char = "!", row.names = 1)
-
 expr_all <- cbind(gse5620, gse5621)
 ```
 
-:::
-
-::: column
-Skip metadata with comment.char = "!" and load numeric matrix only.
-:::
-:::
-
----
-
-### 5. Annotate probe IDs → gene symbols
-
-::: columns
-::: column
-
-``` r
+### Annotate probes
+```{.python code-line-numbers="4,8"}
 probe_to_gene <- AnnotationDbi::select(
   ath1121501.db,
   keys = rownames(expr_all),
-  columns = c("PROBEID", "GENENAME", "SYMBOL"),
+  columns = c("PROBEID","GENENAME","SYMBOL"),
   keytype = "PROBEID"
 )
 
 expr_annotated <- left_join(
   clean_names(probe_to_gene),
   rownames_to_column(as.data.frame(expr_all), "probeid"),
-  by = "probeid"
+  by="probeid"
 )
+
+
+```
+</div>
+---
+
+## Step 02 – Clean {.scrollable}
+
+<div style="font-size:0.49em;">
+
+### Filter Uninformative Genes
+```{.python code-line-numbers="2,5"}
+expr_filtered <- expr_annotated |>
+  filter(!grepl("^AFFX", probeid))
+
+expr_filtered <- expr_filtered |>
+  filter(!is.na(symbol) & symbol != "")
 ```
 
-:::
+### Log2 transform expression
+```{.python code-line-numbers="2"}
+gsm_cols <- grepl("^GSM", names(expr_filtered))
+expr_filtered[ , gsm_cols] <- log2(expr_filtered[ , gsm_cols] + 1)
+expr_numeric <- expr_filtered[ , gsm_cols]
+```
 
-::: column
-Match probe IDs with gene symbols and gene names from ATH1 annotation.
-:::
-:::
+### Remove low-variance genes
+```{.python code-line-numbers="2"}
+gene_variance   <- apply(expr_numeric, 1, var)
+variance_cutoff <- quantile(gene_variance, 0.20)
+expr_filtered   <- expr_filtered[gene_variance > variance_cutoff, ]
+```
+
+
+</div>
 
 ---
 
-## Step 02 - Clean  
-(placeholder slide)
 
 ---
 
