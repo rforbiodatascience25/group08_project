@@ -1,5 +1,5 @@
 ---
-title: "Group08 - 05_analysis_4"
+title: "Group08 - 05_analysis_1"
 subtitle: "lm() via broom"
 author: "Dana"
 format: html
@@ -187,7 +187,7 @@ nested_data |>
 data_estimates <- nested_data |>
   unnest(model_object_tidy) |> 
   filter(term != "(Intercept)") |> 
-  select(gene, term, estimate, p.value, conf.low, conf.high) |> 
+  dplyr::select(gene, term, estimate, p.value, conf.low, conf.high) |> 
   ungroup()
 data_estimates
 ```
@@ -206,19 +206,19 @@ data_estimates
 ```{r}
 significant_data_estimates <- data_estimates |>
   filter(is_significant == "yes") |> 
-  select(gene, term, estimate, p.value, q.value)
+  dplyr::select(gene, term, estimate, p.value, q.value)
 significant_data_estimates
 ```
 
 ```{r}
-raw_data <- nested_data |> select(gene, data) |> unnest(data)
+raw_data <- nested_data |> dplyr::select(gene, data) |> unnest(data)
 
 annotated_sig_results <- raw_data |>
   left_join(data_estimates |> filter(is_significant == "yes"),
             by = "gene",
             relationship = "many-to-many")
 
-write_csv(annotated_sig_results, "../_raw/data/05_analysis_4_results.tsv")
+write_csv(annotated_sig_results, "../_raw/data/05_analysis_1_results.tsv")
 ```
 
 # Forest plot
@@ -399,8 +399,8 @@ top20_gene_names
 
 ```{r}
 expr_annotated_gene_info <- expr_annotated |>
-  select(genename, symbol) |>
-  rename("gene" = "symbol")
+  dplyr::select(genename, symbol) |>
+  dplyr::rename("gene" = "symbol")
 
 top20_gene_data <- expr_annotated_gene_info |>
   filter(gene %in% top20_gene_names)
@@ -410,7 +410,7 @@ top20_gene_data_and_estimates <- left_join(top20_gene_data,
                                            by = "gene")
   
 top20_gene_data_and_estimates <- top20_gene_data_and_estimates |>
-  select(gene, genename, estimate, term) |>
+  dplyr::select(gene, genename, estimate, term) |>
   arrange(estimate)
 top20_gene_data_and_estimates
 ```
@@ -534,7 +534,7 @@ print(str_c("Annotated genes have ", length(cold_and_stress_gene_names), " entri
 # model significant gene names
 model_gene_names_df <- data_estimates |> 
   filter(is_significant == "yes") |>
-  select(gene)
+  dplyr::select(gene)
 
 model_gene_names <- as.character(unique(model_gene_names_df$gene))
 
