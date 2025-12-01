@@ -205,7 +205,3 @@ ggplot(heatmap_data4, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
        y = "Genes",
        fill = "Log2 Fold Change")
 ```
-
-names = aaa
-
-names %in% column
