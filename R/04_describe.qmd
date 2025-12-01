@@ -1,6 +1,7 @@
+
 ---
 title: "04_describe"
-author: "Eleni"
+author: "Eleni&Dana"
 format:
   html:
     output-dir: results
@@ -17,11 +18,12 @@ library(janitor)
 ## 1. Load final dataset
 
 ```{r}
-# Load the final enriched dataset containing:
-# - raw log2-normalized expression per sample
-# - metadata (condition, tissue, timepoint, replicate)
-# - averaged expression values for each group
+# Final enriched dataset created in previous steps
 expr_with_meta <- readr::read_tsv("../_raw/data/expression_with_metadata.tsv")
+
+# Annotated table (used later for gene lookup)
+expr_annotated <- readr::read_tsv("../_raw/data/expression_annotated.tsv")
+
 ```
 
 ## 2. Overview of dataset structure
@@ -44,34 +46,24 @@ tibble(
 )
 ```
 
-## 3. How many samples per condition?
+## 3. Sample counts per condition, tissue and timepoint
 
 ```{r}
-expr_with_meta |> 
-  count(condition)
+expr_with_meta |> count(condition)
+expr_with_meta |> count(tissue)
+expr_with_meta |> count(timepoint)
+
 ```
 
-## 4. How many samples per tissue?
-
-```{r}
-expr_with_meta |> 
-  count(tissue)
-```
-
-## 5. How many samples at each timepoint?
-
-```{r}
-expr_with_meta |> 
-  count(timepoint)
-```
-
-## 6. Combined table (condition × tissue × timepoint)
+## 4. Combined table (condition × tissue × timepoint)
 
 ```{r}
 expr_with_meta |>
   count(condition, tissue, timepoint) |>
   arrange(condition, tissue, timepoint)
+
 ```
+
 
 ## 7. Plot: **Sample Distribution by Condition × Timepoint × Tissue**
 
@@ -95,4 +87,84 @@ plot_describe <- expr_with_meta |>
 
 ggsave("../results/04_key_plot_1.png", plot_describe, width = 8, height = 5, dpi = 300)
 
+plot_describe
 ```
+
+## 6. Prepare factors for plotting
+
+```{r}
+expr_with_meta <- expr_with_meta |>
+  mutate(
+    gene = as.factor(gene),
+    condition = factor(condition, levels = c("control", "cold")),
+    tissue = factor(tissue, levels = c("Roots", "Shoots")),
+    timepoint = factor(timepoint,
+        levels = c("0h", "0.25h", "0.5h", "1.0h", "3.0h",
+                   "4.0h", "6.0h", "12.0h", "24.0h")),
+    replicate = as.factor(replicate)
+  )
+```
+
+## 7. Plot expression for one example gene: (AT)SRC2
+```{r}
+# Filter and prepare data
+plot1_data <- expr_with_meta |>
+  filter(gene == "(AT)SRC2") |>
+  distinct(average, .keep_all = TRUE)
+```
+
+## A. Compare expression between tissues (within conditions)
+
+```{r}
+plot1 <- ggplot(plot1_data,
+                aes(x = timepoint, y = average, color = tissue)) +
+  geom_point() +
+  facet_wrap(~condition) +
+  ggtitle("Average log10 expression of (AT)SRC2 between tissues and conditions") +
+  ylab("Log10 expression")
+
+plot1
+
+```
+
+## B. Compare expression between conditions (within tissues)
+```{r}
+plot2 <- ggplot(plot1_data,
+                aes(x = timepoint, y = average, color = condition)) +
+  geom_point() +
+  facet_wrap(~tissue) +
+  ggtitle("Average log10 expression of (AT)SRC2 within tissues across conditions") +
+  ylab("Log10 expression")
+
+plot2
+
+```
+
+## 8. What is known about (AT)SRC2?
+```{r}
+expr_annotated |>
+  select(genename, symbol) |>
+  filter(symbol == "(AT)SRC2")
+```
+
+
+## 9. Plot five random genes 
+```{r}
+set.seed(123) # reproducible
+five_genes <- sample(unique(expr_with_meta$gene), 5)
+
+data_plot3 <- expr_with_meta |> filter(gene %in% five_genes)
+
+```
+
+```{r}
+plot3 <- ggplot(data_plot3,
+                aes(x = timepoint, y = average, color = gene)) +
+  geom_point() +
+  facet_wrap(condition ~ tissue) +
+  ggtitle("Average log10 expression of five randomly selected genes") +
+  ylab("Log10 expression")
+
+plot3
+```
+
