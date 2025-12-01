@@ -231,7 +231,20 @@ SRC2:
 ---
 
 ## Step 05.1 - Polynomial Model   
-(placeholder slide)
+:::: {.columns}
+
+::: {.column width="50%"}
+![](../results/05_key_plot_1.png)
+:::
+
+::: {.column width="50%"}
+
+![](../results/05_key_plot_2.png)
+
+:::
+
+::::
+
 
 ---
 
