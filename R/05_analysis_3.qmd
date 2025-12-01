@@ -9,8 +9,6 @@ editor: visual
 ---
 
 ## Load packages
-
-=======
 ```{r}
 library(tidyverse) 
 library(ggplot2) 
@@ -164,10 +162,6 @@ shoots_plot <- ggplot(res_shoots_clean,
 shoots_plot
 ```
 
-<<<<<<< HEAD
-```{r} View(res_clean)}
->>>>>>> origin/main
-=======
 ## Volcano plot for gene expression in roots
 
 ```{r}
