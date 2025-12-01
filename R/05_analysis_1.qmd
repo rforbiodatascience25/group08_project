@@ -218,7 +218,7 @@ annotated_sig_results <- raw_data |>
             by = "gene",
             relationship = "many-to-many")
 
-write_csv(annotated_sig_results, "../_raw/data/05_analysis_1_results.tsv")
+readr::write_tsv(annotated_sig_results, "../_raw/data/05_analysis_1_results.tsv")
 ```
 
 # Forest plot
