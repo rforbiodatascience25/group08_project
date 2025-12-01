@@ -210,6 +210,17 @@ significant_data_estimates <- data_estimates |>
 significant_data_estimates
 ```
 
+```{r}
+raw_data <- nested_data |> select(gene, data) |> unnest(data)
+
+annotated_sig_results <- raw_data |>
+  left_join(data_estimates |> filter(is_significant == "yes"),
+            by = "gene",
+            relationship = "many-to-many")
+
+write_csv(annotated_sig_results, "../_raw/data/05_analysis_4_results.csv")
+```
+
 # Forest plot
 
 ## Plot allllll the genes
