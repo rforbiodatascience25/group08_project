@@ -2,7 +2,9 @@
 title: "Group08 - 05_analysis_1"
 subtitle: "Heat map plot"
 author: "Vakare"
-format: revealjs
+format:
+    html:
+      output-dir: results
 editor: visual
 ---
 
@@ -15,17 +17,13 @@ library("tidyverse")
 ## Load data
 
 ```{r}
-heat_data <- read_tsv("../_raw/data/expression_with_metadata.tsv")
-pnq_values <- read_csv("../_raw/data/05_analysis_4_results.csv")
+heat_data <- read_tsv("../_raw/data/03_dat_aug.tsv")
+significant_genes <- read_tsv("../_raw/data/05_analysis_1_results.tsv")
 
 heat_data
 ```
 
 # Filter and clean up relevant data
-
-```{r}
-pnq_values
-```
 
 ```{r}
 filtered_heat_data <- heat_data |>
@@ -73,6 +71,12 @@ filtered_heat_log2fc <- heat_log2fc |>
   filter(gene %in% top50_genes$gene, `timepoint [h]` != 0)
 ```
 
+## Check if top 50 genes are in the gene file
+
+```{r}
+all(top50_genes$gene %in% significant_genes$gene)
+```
+
 ## Plotting heat map (Controls + Shoots)
 
 ```{r}
@@ -110,14 +114,15 @@ ggplot(heatmap_data1, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
 ## Plotting heat map (Cold + Shoots)
 
 ```{r}
-heatmap_data2 <- filtered_heat_log2fc |>
+
+heatmap_data3 <- filtered_heat_log2fc |>
   filter(condition == "cold", tissue == "Shoots") |>
   mutate(
     gene = factor(gene, levels = unique(gene)),
     `timepoint [h]` = factor(`timepoint [h]`)  
   )
 
-p1 <- ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
+ggplot(heatmap_data3, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
   geom_tile() +
   scale_fill_gradient2(
     low = "cyan",
@@ -132,10 +137,13 @@ p1 <- ggplot(heatmap_data2, aes(x = `timepoint [h]`, y = gene, fill = log2FC)) +
     plot.title = element_text(hjust = 0.2, face = "bold"),
     axis.title.x = element_text(vjust = -0.5)
   ) +
-  labs(title = "Shoot gene expression over time (cold conditions)",
-       x = "Timepoint [h]", 
-       y = "Genes", 
-       fill = "Log2 Fold Change")
+  labs(
+    title = "Root gene expression over time (control conditions)",
+    x = "Timepoint [h]",
+    y = "Genes", 
+    fill = "Log2 Fold Change"
+  )
+
 ```
 
 ## Plotting heat map (Control + Roots)
