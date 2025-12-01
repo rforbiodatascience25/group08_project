@@ -57,6 +57,7 @@ PCA_plot <- ggplot(PC_plot, aes(.fittedPC1, .fittedPC2, color = timepoint, shape
          x = "Fitted PC1", y = "Fitted PC2", 
          color = "Timepoint") +
   theme_minimal()
+PCA_plot
 
 ggsave("../results/05_key_plot_4.png", PCA_plot, width = 8, height = 5, dpi = 300)
 ```
@@ -92,10 +93,11 @@ PC_variance_plot <- ggplot(PC_variance, aes(x = PC, y = percent)) +
   labs(title = "Variation of the First 10 Principal Components",
     x = "Principal components", 
     y = 'Percent') +
-  theme_half_open(12) + 
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_line(color = "gray50", linewidth = 0.2))
+
+PC_variance_plot
 
 ggsave("../results/05_key_plot_5.png", PC_variance_plot, width = 8, height = 5, dpi = 300)
 ```
